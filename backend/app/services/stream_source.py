@@ -84,6 +84,9 @@ class StreamSourceService(BaseModuleService):
         # 更新水位偏移
         if samples:
             # 最后一个样本的时间戳作为当前水位
+            # 注意：采样写入不带消费组，属于历史无组标识记录（旧采样路径）。
+            # 它不会推进任何消费组的确认位置；如需归组，须走 watermark 的
+            # 认领流程凭独立确证归属。
             last_ts = max(s.get("ts", 0) for s in samples)
             store.update_watermark(str(source_id), {"offset": last_ts, "source": entry.get("源标识"), "ts": time.time()})
 
